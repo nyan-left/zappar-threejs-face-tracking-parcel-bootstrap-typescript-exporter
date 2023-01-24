@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import * as ZapparThree from "@zappar/zappar-threejs";
 import "./style.css";
+import { GLTFExporter} from "three/examples/jsm/exporters/GLTFExporter";
 
 const faceMeshTexturePath = new URL("./faceMeshTemplate.png", import.meta.url).href;
 
@@ -68,4 +69,32 @@ function render() {
     camera.updateFrame(renderer);
     faceBufferGeometry.updateFromFaceAnchorGroup(trackerGroup);
     renderer.render(scene, camera);
+}
+
+const exporter = new GLTFExporter();
+const btn = document.getElementById("btn-export")!;
+
+btn.onclick = () => {
+  exporter.parse(
+    scene,
+    function (result: any) {
+      saveArrayBuffer(result, 'scene.glb');
+    },
+    { binary: true }
+  );
+}
+
+
+function saveArrayBuffer(buffer: BlobPart, filename: string) {
+  save(new Blob([buffer], { type: 'application/octet-stream' }), filename);
+}
+
+const link = document.createElement('a');
+link.style.display = 'none';
+document.body.appendChild(link);
+
+function save(blob: Blob | MediaSource, filename: string) {
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
 }
